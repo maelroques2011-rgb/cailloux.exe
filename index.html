@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAILLOU.EXE — Evolution Protocol</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root{
+ --bg:#090a12;--panel:#121522;--panel2:#191e2e;
+ --line:#ffffff12;--purple:#a58aff;--cyan:#72e9dd;
+ --text:#f3f2ff;--muted:#858ba5;
+ --stone1:#a9a9bb;--stone2:#55566d;--glow:#a58aff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% -10%,#282448 0%,transparent 48%),var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh}
+button{font-family:inherit}
+header{height:72px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(calc((100% - 1200px)/2),22px);background:#090a12d9;position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
+.logo{font-weight:900;letter-spacing:-1px;font-size:19px}.logo span{color:var(--purple)}
+.header-right{display:flex;align-items:center;gap:17px;color:var(--muted);font-size:11px}
+.save-dot{width:7px;height:7px;background:#62e9a4;border-radius:50%;display:inline-block;margin-right:5px;box-shadow:0 0 9px #62e9a4}
+main{max-width:1200px;margin:auto;padding:32px 20px 65px}
+.topline{display:flex;justify-content:space-between;align-items:end;margin-bottom:23px}
+.eyebrow{font-size:10px;color:var(--purple);font-weight:900;letter-spacing:3px}
+h1{font-size:clamp(26px,4vw,39px);letter-spacing:-2px;margin:8px 0}
+.sub{font-size:12px;color:var(--muted)}
+.version{font-size:10px;color:#77748f;border:1px solid var(--line);padding:8px 12px;border-radius:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px}
+.stat{padding:15px 17px}
+.stat-label{font-size:10px;color:var(--muted);margin-bottom:9px}
+.stat-value{font-size:23px;font-weight:900;letter-spacing:-1px}
+.stat small{color:var(--muted);font-size:10px;font-weight:500}
+.layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(330px,.88fr);gap:15px}
+.panel{padding:19px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.panel-title{font-size:13px;font-weight:900}
+.panel-sub{font-size:10px;color:var(--muted);margin-top:5px}
+.pill{font-size:9px;font-weight:800;color:#d2c5ff;background:#30264c;padding:6px 9px;border-radius:30px}
+.arena{height:430px;margin-top:15px;border-radius:13px;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 53%,color-mix(in srgb,var(--glow) 22%,transparent),transparent 56%),linear-gradient(150deg,#1a1c30,#111421 75%)}
+.arena:before{content:"";position:absolute;inset:0;background-image:radial-gradient(#ffffff9c 1px,transparent 1px);background-size:43px 43px;opacity:.13;mask-image:linear-gradient(transparent,#000,transparent)}
+.orbit{position:absolute;width:290px;height:290px;border:1px solid color-mix(in srgb,var(--glow) 30%,transparent);border-radius:50%;animation:spin 25s linear infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 15px var(--cyan)}
+.orbit:before{top:20px;left:40px}.orbit:after{bottom:20px;right:40px;background:var(--glow);box-shadow:0 0 15px var(--glow)}
+.orbit.two{width:350px;height:230px;transform:rotate(-28deg);animation:spin 35s linear infinite reverse;opacity:.5}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stone-wrap{position:relative;z-index:2;cursor:pointer;user-select:none;filter:drop-shadow(0 18px 25px #0009);transition:transform .15s}
+.stone-wrap:hover{transform:scale(1.045)}
+.stone-wrap:active{transform:scale(.92)}
+.stone-svg{width:220px;height:220px;overflow:visible}
+.stone-main{fill:var(--stone1);stroke:#ffffff50;stroke-width:2;transition:fill .5s}
+.stone-dark{fill:var(--stone2);opacity:.85}
+.stone-light{fill:#ffffff30}
+.stone-crack{fill:none;stroke:#242436;stroke-width:3;stroke-linecap:round;opacity:.8}
+.stone-glow{fill:none;stroke:var(--glow);stroke-width:2;opacity:0;filter:drop-shadow(0 0 6px var(--glow))}
+.stone-wrap.rare .stone-glow{opacity:1}
+.stone-wrap.rare .stone-crack{stroke:var(--glow)}
+.stone-wrap.rare{filter:drop-shadow(0 0 20px var(--glow))}
+.stone-name{font-weight:900;font-size:19px;margin-top:6px;z-index:2}
+.stone-rank{font-size:10px;color:var(--glow);font-weight:900;letter-spacing:3px;margin-top:6px;z-index:2}
+.tap-hint{font-size:10px;color:var(--muted);margin-top:12px;z-index:2}
+.levelbar{width:78%;margin-top:20px;z-index:2}
+.level-info{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:7px}
+.bar{height:7px;background:#292c41;border-radius:20px;overflow:hidden}
+.bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:20px;transition:width .25s}
+.float{position:absolute;z-index:8;color:var(--cyan);font-size:15px;font-weight:900;pointer-events:none;animation:float .9s forwards;text-shadow:0 0 12px #72e9dd}
+@keyframes float{to{transform:translateY(-85px) scale(1.2);opacity:0}}
+.meteor{display:none;position:absolute;z-index:9;top:18%;right:15%;border:1px solid #ffb76b;background:#412c2a;color:#ffe2b6;padding:12px;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 0 35px #ff9c43;animation:meteor 1s infinite alternate}
+@keyframes meteor{to{transform:scale(1.15);box-shadow:0 0 50px #ff9c43}}
+.meteor.show{display:block}
+.right{display:flex;flex-direction:column;gap:14px}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin:14px 0}
+.tab{border:1px solid var(--line);background:#1a1d2b;color:var(--muted);border-radius:8px;padding:9px 12px;font-size:10px;font-weight:800;cursor:pointer}
+.tab.active{background:#33284f;color:#e0d5ff;border-color:#765ab0}
+.tab-content{display:none}.tab-content.active{display:block}
+.item{display:flex;align-items:center;gap:11px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px;margin-top:9px}
+.item-icon{font-size:23px;width:29px;text-align:center}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:11px;font-weight:900}
+.item-desc{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.5}
+.item-count{font-size:9px;color:var(--purple);margin-top:4px}
+.action{border:1px solid #67518d;background:#30274b;color:#e3d8ff;padding:9px 11px;border-radius:8px;font-size:9px;font-weight:900;cursor:pointer;white-space:nowrap}
+.action:hover:not(:disabled){background:#7056ac}
+.action:disabled{opacity:.35;cursor:not-allowed}
+.mission-progress{margin-top:8px}
+.mission-progress .bar{height:5px}
+.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.badge-card{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:12px;opacity:.4}
+.badge-card.done{opacity:1;border-color:#8065b4}
+.badge-card .big{font-size:20px}
+.badge-card b{display:block;font-size:10px;margin-top:7px}
+.badge-card small{display:block;font-size:9px;color:var(--muted);margin-top:4px}
+.research{border:1px solid #5e4b88;background:#241e37;border-radius:12px;padding:14px;margin-top:10px}
+.research h3{font-size:11px;margin:0 0 5px}
+.research p{font-size:9px;color:var(--muted);line-height:1.5}
+.notice{font-size:10px;color:var(--muted);line-height:1.6;padding:12px;background:#ffffff06;border-radius:9px;margin-top:10px}
+.stats-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.stat-box{background:var(--panel2);padding:13px;border-radius:9px}
+.stat-box small{display:block;color:var(--muted);font-size:9px}
+.stat-box b{display:block;font-size:16px;margin-top:7px}
+.prestige-box{background:radial-gradient(ellipse at top,#49346c,#1a1729 75%);border:1px solid #8e68b5;border-radius:13px;padding:17px;margin-top:12px}
+.prestige-box h3{margin:0;font-size:14px}
+.prestige-box p{font-size:10px;color:#c3b5d9;line-height:1.6}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,100px);background:#28213f;border:1px solid #8065b4;padding:13px 19px;border-radius:11px;font-size:11px;font-weight:800;z-index:50;transition:.3s;text-align:center;max-width:90%}
+.toast.show{transform:translate(-50%,0)}
+footer{text-align:center;color:#53566e;font-size:9px;padding:28px}
+@media(max-width:780px){
+ .layout{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}
+ .topline{align-items:start}.version{display:none}
+ .arena{height:390px}.stone-svg{width:190px;height:190px}
+ header{padding:0 17px}.header-right{font-size:9px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">CAILLOU<span>.EXE</span></div>
+ <div class="header-right"><span><i class="save-dot"></i> SAUVEGARDE ACTIVE</span><span>EVOLUTION PROTOCOL 2.0</span></div>
+</header>
+
+<main>
+ <div class="topline">
+  <div>
+   <div class="eyebrow">LE GRAND PROJET INUTILE</div>
+   <h1>Evolution Protocol.</h1>
+   <div class="sub">Un caillou. Une destinée. Zéro utilité sociale.</div>
+  </div>
+  <div class="version">BUILD 002 // EXPERIMENTAL</div>
+ </div>
+
+ <section class="stats">
+  <div class="stat"><div class="stat-label">🪨 GRAVIER</div><div class="stat-value" id="gravel">0</div></div>
+  <div class="stat"><div class="stat-label">⚡ PUISSANCE PAR CLIC</div><div class="stat-value" id="power">1</div></div>
+  <div class="stat"><div class="stat-label">🏭 PRODUCTION / SEC</div><div class="stat-value" id="rate">0</div></div>
+  <div class="stat"><div class="stat-label">💠 CRISTAUX</div><div class="stat-value" id="crystals">0</div></div>
+ </section>
+
+ <section class="layout">
+  <div class="panel">
+   <div class="panel-head">
+    <div><div class="panel-title">SUJET D'EXPÉRIMENTATION</div><div class="panel-sub">Observe sa transformation progressive.</div></div>
+    <span class="pill" id="levelPill">NIVEAU 1 / 60</span>
+   </div>
+
+   <div class="arena" id="arena">
+    <div class="orbit"></div><div class="orbit two"></div>
+    <button class="meteor" id="meteor" title="Clique pour récupérer la météorite">☄️</button>
+
+    <div class="stone-wrap" id="stoneWrap" onclick="tapStone()">
+     <svg class="stone-svg" viewBox="0 0 240 240" role="img" aria-label="Caillou évolutif">
+      <defs>
+       <linearGradient id="rockGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#e0e0eb"/>
+        <stop offset="48%" stop-color="#999bad"/>
+        <stop offset="100%" stop-color="#42465d"/>
+       </linearGradient>
+       <linearGradient id="rockSide" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#85889f"/>
+        <stop offset="100%" stop-color="#292d42"/>
+       </linearGradient>
+       <radialGradient id="shine">
+        <stop offset="0%" stop-color="#fff" stop-opacity=".5"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+       </radialGradient>
+      </defs>
+      <ellipse cx="120" cy="207" rx="77" ry="13" fill="#000" opacity=".4"/>
+      <path class="stone-main" fill="url(#rockGrad)" d="M35 137 L27 103 48 65 79 40 116 29 154 39 191 60 211 95 207 136 185 174 145 194 99 199 57 178Z"/>
+      <path class="stone-dark" fill="url(#rockSide)" d="M35 137 L27 103 48 65 79 40 88 93 69 133 91 190 57 178Z"/>
+      <path class="stone-light" d="M79 40 L116 29 154 39 130 83 88 93Z"/>
+      <path fill="#fff" opacity=".16" d="M116 29 L154 39 191 60 159 91 130 83Z"/>
+      <path fill="#34384f" opacity=".65" d="M130 83 L159 91 211 95 207 136 170 139 144 117Z"/>
+      <path fill="#fff" opacity=".10" d="M48 65 L79 40 88 93 69 133 27 103Z"/>
+      <path fill="#171a2b" opacity=".35" d="M69 133 L91 190 145 194 170 139 144 117 105 148Z"/>
+      <path class="stone-crack" d="M88 93 L105 116 95 137 M159 91 L144 117 170 139 M105 116 L130 83 M95 137 L121 154"/>
+      <path class="stone-glow" d="M88 93 L105 116 95 137 M159 91 L144 117 170 139 M105 116 L130 83 M95 137 L121 154"/>
+      <ellipse cx="95" cy="69" rx="35" ry="18" fill="url(#shine)" transform="rotate(-30 95 69)"/>
+      <g id="gems">
+       <path d="M120 102 l9 13 -9 14 -9 -14Z" fill="#bba7ff" stroke="#fff" stroke-opacity=".7"/>
+       <path d="M120 102v27l9 -14Z" fill="#7357c8"/>
+      </g>
+      <g id="extraGems"></g>
+     </svg>
+    </div>
+    <div class="stone-name" id="stoneName">Caillou banal</div>
+    <div class="stone-rank" id="stoneRank">ROCHE ORDINAIRE</div>
+    <div class="tap-hint">CLIQUE SUR LE CAILLOU POUR LE FAIRE ÉVOLUER</div>
+    <div class="levelbar">
+     <div class="level-info"><span>EXPÉRIENCE DU CAILLOU</span><span id="xpText">0 / 100</span></div>
+     <div class="bar"><div id="xpBar"></div></div>
+    </div>
+   </div>
+   <div class="notice" id="levelMessage">Ton caillou est encore très ordinaire. C'est presque touchant.</div>
+  </div>
+
+  <div class="right">
+   <div class="panel">
+    <div class="panel-head"><div><div class="panel-title">CENTRE DE CONTRÔLE</div><div class="panel-sub">Gère ton empire minéral.</div></div><span class="pill">MENU</span></div>
+    <div class="tabs">
+     <button class="tab active" data-tab="shop">BOUTIQUE</button>
+     <button class="tab" data-tab="research">RECHERCHE</button>
+     <button class="tab" data-tab="missions">MISSIONS</button>
+     <button class="tab" data-tab="achievements">SUCCÈS</button>
+     <button class="tab" data-tab="statsTab">STATS</button>
+    </div>
+
+    <div class="tab-content active" id="shop">
+     <div class="panel-sub">Investis tes graviers dans le progrès.</div>
+     <div id="shopItems"></div>
+    </div>
+
+    <div class="tab-content" id="research">
+     <div class="panel-sub">Des recherches permanentes payées en cristaux.</div>
+     <div id="researchItems"></div>
+    </div>
+
+    <div class="tab-content" id="missions">
+     <div class="panel-sub">Tes objectifs du jour. Renouvelés chaque jour.</div>
+     <div id="missionItems"></div>
+    </div>
+
+    <div class="tab-content" id="achievements">
+     <div class="panel-sub">Les preuves de ton inutilité grandissante.</div>
+     <div class="badge-grid" id="achievementItems"></div>
+    </div>
+
+    <div class="tab-content" id="statsTab">
+     <div class="panel-sub">Les données absolument essentielles.</div>
+     <div class="stats-list" id="statistics"></div>
+     <div class="prestige-box">
+      <h3>♾️ PROTOCOLE DE RENAISSANCE</h3>
+      <p>Atteins le niveau 60 pour renaître. Tu perdras ton gravier, ton expérience et tes achats, mais tu gagneras des cristaux de prestige et un bonus permanent de production.</p>
+      <div id="prestigeInfo" class="item-desc"></div>
+      <button class="action" id="prestigeButton" onclick="prestige()" style="margin-top:12px" disabled>RENAÎTRE</button>
+     </div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-top:17px">
+  <div class="sub" style="font-size:9px">💾 Sauvegarde automatique · Progression hors ligne limitée à 8 heures</div>
+  <button class="action" onclick="resetGame()">RÉINITIALISER</button>
+ </div>
+</main>
+<footer>CAILLOU.EXE — IL N'Y A PAS DE DESTIN. JUSTE DES CAILLOUX.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>{
+ if(n>=1e12)return (n/1e12).toFixed(2)+" T";
+ if(n>=1e9)return (n/1e9).toFixed(2)+" Md";
+ if(n>=1e6)return (n/1e6).toFixed(2)+" M";
+ if(n>=1e4)return Math.floor(n).toLocaleString("fr-FR");
+ return Math.floor(n*10)/10+"";
+};
+
+const stages=[
+ {name:"Caillou banal",rank:"ROCHE ORDINAIRE",c1:"#b9bac7",c2:"#55596e",glow:"#a58aff",msg:"Une pierre. Rien de plus. Pour le moment."},
+ {name:"Caillou poli",rank:"ROCHE SOIGNÉE",c1:"#c4c9d9",c2:"#666d85",glow:"#a58aff",msg:"Il commence à prendre soin de lui."},
+ {name:"Caillou suspect",rank:"ANOMALIE MINEURE",c1:"#a8a4d5",c2:"#4c477c",glow:"#a58aff",msg:"Il te regarde quand tu ne regardes pas."},
+ {name:"Galet lunaire",rank:"MATIÈRE CÉLESTE",c1:"#b5d2e6",c2:"#4b6c91",glow:"#71d7ff",msg:"Il semble avoir vu la lune. De près."},
+ {name:"Pierre électrique",rank:"ÉNERGIE INSTABLE",c1:"#9adbdc",c2:"#286e83",glow:"#65f7ed",msg:"Il crépite. Ce n'est probablement pas normal."},
+ {name:"Cristal vivant",rank:"ORGANISME MINÉRAL",c1:"#d0a9ff",c2:"#6346a4",glow:"#c99aff",msg:"Il a développé une personnalité. Elle est discutable."},
+ {name:"Cœur volcanique",rank:"TEMPÉRATURE CRITIQUE",c1:"#ffb06f",c2:"#8d343b",glow:"#ff7048",msg:"Il est chaud. Très chaud. Ne le lèche pas."},
+ {name:"Relique ancienne",rank:"ARTEFACT ANCESTRAL",c1:"#e6ce91",c2:"#80653c",glow:"#ffe39b",msg:"Une civilisation entière a probablement vénéré ce caillou."},
+ {name:"Pierre quantique",rank:"MATIÈRE IMPROBABLE",c1:"#90b9ff",c2:"#4644a1",glow:"#86c5ff",msg:"Il est simultanément rond et pas rond."},
+ {name:"Noyau stellaire",rank:"ÉNERGIE STELLAIRE",c1:"#ffb6e7",c2:"#894a9d",glow:"#ff8cda",msg:"Il contient une quantité absurde de potentiel."},
+ {name:"Oracle de granit",rank:"CONSCIENCE MINÉRALE",c1:"#c6c4ff",c2:"#5650a2",glow:"#c2b5ff",msg:"Il connaît la réponse à tout. Il refuse de parler."},
+ {name:"Monolithe",rank:"ARCHITECTURE SACRÉE",c1:"#b7c2e8",c2:"#465275",glow:"#a5caff",msg:"Il est devenu un monument à lui-même."},
+ {name:"Pierre dimensionnelle",rank:"PORTAIL ACTIF",c1:"#c2a4ff",c2:"#542d99",glow:"#a477ff",msg:"Quelque chose bouge derrière la pierre."},
+ {name:"Astéroïde miniature",rank:"CORPS CÉLESTE",c1:"#d0a99b",c2:"#654c56",glow:"#ffad8c",msg:"Une planète entière en version de poche."},
+ {name:"Diamant impossible",rank:"MATIÈRE LÉGENDAIRE",c1:"#d8f8ff",c2:"#5499c7",glow:"#a5f5ff",msg:"Les géologues ont démissionné."},
+ {name:"Gardien du vide",rank:"ENTITÉ COSMIQUE",c1:"#9d8cff",c2:"#30215d",glow:"#b18cff",msg:"Il protège quelque chose. Probablement un autre caillou."},
+ {name:"Soleil minéral",rank:"FUSION STABLE",c1:"#ffe28d",c2:"#a34e30",glow:"#ffcc61",msg:"Il brille plus que ton avenir."},
+ {name:"Pierre temporelle",rank:"TEMPS COMPRESSÉ",c1:"#9cdbc9",c2:"#326e70",glow:"#7dffdc",msg:"Elle est tombée hier, demain."},
+ {name:"Le Grand Galet",rank:"MAÎTRE DES GALLETS",c1:"#e6e1d4",c2:"#817c8d",glow:"#d5c5ff",msg:"Tous les petits galets connaissent son nom."},
+ {name:"Entité cristalline",rank:"ESPRIT DU QUARTZ",c1:"#d7aaff",c2:"#673d91",glow:"#e4a4ff",msg:"Elle a transcendé la notion de gravier."},
+ {name:"Planète caillou",rank:"MONDE HABITABLE",c1:"#8cba9c",c2:"#3b526e",glow:"#9bffb5",msg:"Il possède désormais une météo."},
+ {name:"Trou noir minéral",rank:"GRAVITÉ INFINIE",c1:"#7f72a9",c2:"#161326",glow:"#b18aff",msg:"Il aspire les dettes et les regrets."},
+ {name:"Architecte stellaire",rank:"CRÉATEUR DE MONDES",c1:"#f2c2a5",c2:"#784a89",glow:"#ffb9d9",msg:"Il construit des galaxies pour passer le temps."},
+ {name:"Légende du gravier",rank:"MYTHE VIVANT",c1:"#f6d5a0",c2:"#95633d",glow:"#ffe1a1",msg:"On raconte son histoire aux petits cailloux."},
+ {name:"Dieu des minéraux",rank:"DIVINITÉ CONFIRMÉE",c1:"#e4baff",c2:"#7148b4",glow:"#e8baff",msg:"Il a créé la montagne. Puis l'a trouvée trop bruyante."},
+ {name:"Singularité",rank:"POINT DE NON-RETOUR",c1:"#9eeaff",c2:"#3a4c99",glow:"#91f4ff",msg:"Les lois de la physique ont envoyé une lettre de plainte."},
+ {name:"Roi des astéroïdes",rank:"SOUVERAIN GALACTIQUE",c1:"#f8cb7d",c2:"#98536b",glow:"#ffce80",msg:"Il règne sur des milliards de petits cailloux."},
+ {name:"L'Inconcevable",rank:"AU-DELÀ DU MINÉRAL",c1:"#f1e9ff",c2:"#7c65c9",glow:"#fff1ff",msg:"Les mots ne suffisent plus. Les cailloux non plus."},
+ {name:"Absolu lithique",rank:"CONSCIENCE UNIVERSELLE",c1:"#b9fff0",c2:"#427f99",glow:"#9ffff2",msg:"Il est partout. Même dans les poches de tes jeans."},
+ {name:"DIEU DU GRAVIER",rank:"NIVEAU 30 — DIVINITÉ MINÉRALE",c1:"#fff2ad",c2:"#b66bce",glow:"#fff0a6",msg:"La création entière est devenue son bac à sable."},
+ {name:"Caillou astral",rank:"ÉCLAT ASTRAL",c1:"#a8c8ff",c2:"#394b85",glow:"#83baff",msg:"Il a pris un peu trop de poussière d'étoiles."},
+ {name:"Quartz fantôme",rank:"CRISTAL SPECTRAL",c1:"#d8c9ff",c2:"#67518e",glow:"#c4a4ff",msg:"On le voit même quand on ferme les yeux."},
+ {name:"Obsidienne solaire",rank:"VERRE STELLAIRE",c1:"#ffbd83",c2:"#713b4b",glow:"#ff9868",msg:"Une petite étoile s'est installée à l'intérieur."},
+ {name:"Galet des marées",rank:"ÉNERGIE OCÉANIQUE",c1:"#9ce8e8",c2:"#286b82",glow:"#62eaff",msg:"Il entend l'océan, même au milieu du désert."},
+ {name:"Améthyste royale",rank:"CRISTAL NOBILIAIRE",c1:"#e2b2ff",c2:"#69409d",glow:"#d58aff",msg:"Il exige désormais un coussin en velours."},
+ {name:"Pierre prismatique",rank:"SPECTRE MULTICOLORE",c1:"#c6f7ff",c2:"#5868a9",glow:"#a9f4ff",msg:"Chaque facette semble avoir sa propre météo."},
+ {name:"Basalte fantasmagorique",rank:"ROCHE ÉTHÉRÉE",c1:"#a9a2d8",c2:"#34304f",glow:"#a99aff",msg:"Il est solide, mais son ombre ne l'est pas."},
+ {name:"Cœur de comète",rank:"NOYAU COMÉTAIRE",c1:"#ffd0a0",c2:"#8b4d65",glow:"#ffb1d0",msg:"Une traînée lumineuse le suit partout."},
+ {name:"Saphir abyssal",rank:"PROFONDEUR CRISTALLINE",c1:"#91caff",c2:"#263e80",glow:"#63aaff",msg:"Il vient d'un endroit où même la lumière hésite."},
+ {name:"Pierre runique",rank:"ARTEFACT INSCRIT",c1:"#d9c59a",c2:"#725a3d",glow:"#ffe19a",msg:"Les runes racontent une histoire. Elle parle surtout de cailloux."},
+ {name:"Géode électrique",rank:"CAVITÉ SURVOLTÉE",c1:"#a1f1df",c2:"#286d68",glow:"#73ffe2",msg:"Son intérieur bourdonne d'énergie minérale."},
+ {name:"Cristal de nébuleuse",rank:"MATIÈRE NÉBULAIRE",c1:"#e5aaff",c2:"#5c3e91",glow:"#d58aff",msg:"Une petite galaxie s'est formée dans ses fissures."},
+ {name:"Pierre d'éclipse",rank:"OMBRE LUMINEUSE",c1:"#aaa6d5",c2:"#29263f",glow:"#b6a2ff",msg:"Elle cache la lumière juste pour mieux briller."},
+ {name:"Grenat incandescent",rank:"BRAISE MINÉRALE",c1:"#ffad91",c2:"#7b303e",glow:"#ff775f",msg:"Il est officiellement plus chaud que ton ordinateur."},
+ {name:"Cristal boréal",rank:"AURORE SOLIDE",c1:"#b8fff0",c2:"#397c91",glow:"#8dffe7",msg:"Une aurore boréale a décidé de prendre une forme compacte."},
+ {name:"Météorite couronnée",rank:"RELIQUE CÉLESTE",c1:"#e8d5a5",c2:"#80644b",glow:"#ffe4a1",msg:"Elle a traversé des systèmes solaires pour arriver ici."},
+ {name:"Pierre miroir",rank:"REFLET IMPOSSIBLE",c1:"#d8e6ff",c2:"#657b9d",glow:"#b8dfff",msg:"Son reflet a l'air d'avoir sa propre sauvegarde."},
+ {name:"Cristal du zénith",rank:"LUMIÈRE PERPÉTUELLE",c1:"#fff0b2",c2:"#a46b83",glow:"#ffe7a0",msg:"Il brille au sommet de toutes les montagnes."},
+ {name:"Roche spectrale",rank:"FRÉQUENCE MINÉRALE",c1:"#c4aaff",c2:"#43346f",glow:"#a98aff",msg:"Elle vibre sur une fréquence que seuls les cailloux comprennent."},
+ {name:"Cœur de galaxie",rank:"CENTRE GALACTIQUE",c1:"#ffb9e7",c2:"#60408f",glow:"#ff9de2",msg:"Des milliards d'étoiles tournent autour de lui."},
+ {name:"Pierre d'orage",rank:"FOUDRE CRISTALLISÉE",c1:"#b5d8ff",c2:"#3c578b",glow:"#85caff",msg:"Le tonnerre fait moins de bruit quand elle le regarde."},
+ {name:"Diamant astral",rank:"FACETTES CÉLESTES",c1:"#e1faff",c2:"#5c8bb0",glow:"#a6f5ff",msg:"Même les étoiles trouvent ses facettes un peu trop brillantes."},
+ {name:"Monolithe auroral",rank:"PILIER DES CONSTELLATIONS",c1:"#b7e9d9",c2:"#4a6387",glow:"#a1ffe1",msg:"Il sert de repère aux voyageurs interstellaires."},
+ {name:"Pierre du zodiaque",rank:"ALIGNEMENT COSMIQUE",c1:"#f3d1a2",c2:"#82528a",glow:"#ffd1a1",msg:"Les constellations se sont alignées pour lui faire une place."},
+ {name:"Prisme éternel",rank:"RÉFRACTION INFINIE",c1:"#e3c5ff",c2:"#5b56a0",glow:"#d4aaff",msg:"Sa lumière semble se diviser à l'infini."},
+ {name:"Noyau de supernova",rank:"EXPLOSION STABILISÉE",c1:"#ffd1a0",c2:"#914c71",glow:"#ff9bc9",msg:"Il contient le souvenir d'une étoile qui a tout donné."},
+ {name:"Pierre du multivers",rank:"ANOMALIE MULTIVERSELLE",c1:"#a8f0ef",c2:"#435c9c",glow:"#91faff",msg:"Dans chaque univers, il existe une version encore plus caillou."},
+ {name:"Couronne du néant",rank:"SOUVERAIN DE L'OMBRE",c1:"#b6a7e8",c2:"#211d3b",glow:"#c1a1ff",msg:"Même le vide lui laisse poliment la place."},
+ {name:"Étoile lithique",rank:"ASTRE MINÉRAL",c1:"#fff0c1",c2:"#a75e9c",glow:"#ffe4a8",msg:"Une étoile entière a choisi de devenir un caillou."},
+ {name:"CAILLOU INFINI",rank:"AU-DELÀ DU NIVEAU MAXIMAL",c1:"#e4fff5",c2:"#6752b2",glow:"#b6fff0",msg:"Il n'y a plus de niveaux. Il n'y a que lui."},
+];
+
+const shop=[
+ ["👆","Doigt musclé","+1 puissance par clic",25,"click",1],
+ ["🤖","Assistant minéral","+1 gravier / seconde",60,"auto",1],
+ ["🔨","Marteau mystique","+5 puissance par clic",250,"click",5],
+ ["⛏️","Petite mine","+8 gravier / seconde",400,"auto",8],
+ ["🏭","Usine à gravier","+35 gravier / seconde",1800,"auto",35],
+ ["⚡","Doigt divin","+50 puissance par clic",3500,"click",50],
+ ["🛸","Drone extracteur","+120 gravier / seconde",9000,"auto",120],
+ ["🌋","Volcan personnel","+400 gravier / seconde",30000,"auto",400],
+ ["🧲","Aimant cosmique","+250 puissance par clic",65000,"click",250],
+ ["🌌","Réacteur galactique","+1800 gravier / seconde",180000,"auto",1800],
+ ["👑","Main de titan","+1500 puissance par clic",500000,"click",1500],
+ ["🪐","Usine interstellaire","+9000 gravier / seconde",1500000,"auto",9000]
+];
+
+const research=[
+ {name:"Doigts entraînés",icon:"🧬",desc:"+25% de puissance de clic permanente.",cost:3,kind:"click"},
+ {name:"Récolte optimisée",icon:"⚙️",desc:"+25% de production automatique permanente.",cost:4,kind:"auto"},
+ {name:"Magnétisme ancien",icon:"🧲",desc:"+10% à toutes les productions.",cost:6,kind:"all"},
+ {name:"Veines de cristal",icon:"💎",desc:"+1 cristal bonus à chaque prestige.",cost:8,kind:"crystal"},
+ {name:"Résonance quantique",icon:"🔮",desc:"+50% de puissance de clic permanente.",cost:12,kind:"click2"},
+ {name:"Machine éternelle",icon:"♾️",desc:"+50% de production automatique.",cost:15,kind:"auto2"}
+];
+
+const achievements=[
+ ["👋","Premier contact","Effectuer un clic",s=>s.clicks>=1],
+ ["🪨","Petit tas","Posséder 1 000 graviers",s=>s.totalEarned>=1000],
+ ["💪","Acharnement","Effectuer 100 clics",s=>s.clicks>=100],
+ ["🏭","Industriel","Acheter 10 améliorations",s=>s.purchases>=10],
+ ["💎","Cristallin","Obtenir un cristal",s=>s.crystals>=1],
+ ["🌌","Cosmique","Atteindre le niveau 20",s=>s.level>=20],
+ ["👑","Dieu vivant","Atteindre le niveau 30",s=>s.level>=30],
+ ["♾️","Renaissance","Effectuer un prestige",s=>s.prestiges>=1],
+ ["☄️","Chasseur d'étoiles","Attraper 5 météorites",s=>s.meteors>=5],
+ ["🤑","Milliardaire","Gagner 1 million de graviers",s=>s.totalEarned>=1e6]
+];
+
+const fresh=()=>({
+ gravel:0,totalEarned:0,xp:0,level:1,clicks:0,purchases:0,
+ crystals:0,prestiges:0,meteors:0,meteorGravel:0,
+ owned:Array(shop.length).fill(0),research:[],unlocked:[],
+ lastSeen:Date.now(),missionDay:"",missionProgress:0,missionClaimed:false
+});
+let s=fresh(),toastTimer,meteorTimer;
+let mission={name:"Récolte quotidienne",desc:"Gagne 500 graviers.",target:500,reward:2};
+
+function levelNeed(l){return Math.floor(115*Math.pow(l,2.48));}
+function mult(){
+  return 1+s.prestiges*.2;
+}
+function clickMult(){return (1+(s.research.includes(0)?.25:0)+(s.research.includes(4)?.5:0))*(1+(s.research.includes(2)?.1:0));}
+function autoMult(){return (1+(s.research.includes(1)?.25:0)+(s.research.includes(5)?.5:0))*(1+(s.research.includes(2)?.1:0));}
+function power(){
+ return (1+shop.reduce((a,u,i)=>a+(u[4]==="click"?u[5]*s.owned[i]:0),0))*clickMult()*mult();
+}
+function rate(){
+ return shop.reduce((a,u,i)=>a+(u[4]==="auto"?u[5]*s.owned[i]:0),0)*autoMult()*mult();
+}
+function cost(i){return Math.floor(shop[i][3]*Math.pow(1.48,s.owned[i]));}
+function say(t){
+ clearTimeout(toastTimer);$("toast").textContent=t;$("toast").classList.add("show");
+ toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400);
+}
+function save(){s.lastSeen=Date.now();localStorage.setItem("rockProtocolV2",JSON.stringify(s));}
+function load(){
+ try{
+  const raw=JSON.parse(localStorage.getItem("rockProtocolV2"));
+  if(raw){s={...fresh(),...raw};if(!Array.isArray(s.owned))s.owned=Array(shop.length).fill(0);if(!Array.isArray(s.research))s.research=[];if(!Array.isArray(s.unlocked))s.unlocked=[];}
+ }catch(e){}
+ const away=Math.min(28800,Math.max(0,(Date.now()-s.lastSeen)/1000));
+ if(away>30&&s.level>1){
+  const gain=rate()*away;
+  if(gain>0){s.gravel+=gain;s.totalEarned+=gain;s.xp+=gain;say("Pendant ton absence : +"+fmt(gain)+" graviers !");}
+ }
+ updateLevel();
+}
+
+function updateLevel(){
+ let l=1;
+ while(l<stages.length&&s.xp>=levelNeed(l))l++;
+ if(l>s.level){s.level=l;say("✨ ÉVOLUTION : NIVEAU "+l+" — "+stages[l-1].name);}
+ else s.level=l;
+}
+function floatText(t){
+ const el=document.createElement("div");el.className="float";el.textContent=t;
+ el.style.left=(35+Math.random()*30)+"%";el.style.top=(40+Math.random()*15)+"%";
+ $("arena").appendChild(el);setTimeout(()=>el.remove(),950);
+}
+function tapStone(){
+ const n=power();s.gravel+=n;s.totalEarned+=n;s.xp+=n;s.clicks++;
+if(mission.name.includes("Doigt agile")) {
+  s.missionProgress++;
+} else if(
+  mission.name.includes("Récolte") ||
+  mission.name.includes("Chasseur")
+) {
+  s.missionProgress+=n;
+}floatText("+"+fmt(n));update();
+}
+function buy(i){
+ const c=cost(i);if(s.gravel<c)return;
+ s.gravel-=c;s.owned[i]++;s.purchases++;
+ if(mission.name.includes("investisseur")) {
+  s.missionProgress++;
+}
+ say(shop[i][0]+" "+shop[i][1]+" acheté !");
+ update();
+}
+function renderShop(){
+ $("shopItems").innerHTML=shop.map((u,i)=>`
+ <div class="item">
+  <div class="item-icon">${u[0]}</div>
+  <div class="item-info"><div class="item-name">${u[1]}</div>
+   <div class="item-desc">${u[2]}</div>
+   <div class="item-count">Possédés : ${s.owned[i]}</div></div>
+  <button class="action" onclick="buy(${i})" ${s.gravel<cost(i)?"disabled":""}>${fmt(cost(i))} 🪨</button>
+ </div>`).join("");
+}
+function renderResearch(){
+ $("researchItems").innerHTML=research.map((r,i)=>{
+  const done=s.research.includes(i);
+  return `<div class="item"><div class="item-icon">${r.icon}</div><div class="item-info"><div class="item-name">${r.name}</div><div class="item-desc">${r.desc}</div></div><button class="action" ${done||s.crystals<r.cost?"disabled":""} onclick="buyResearch(${i})">${done?"ACTIVÉ":r.cost+" 💠"}</button></div>`;
+ }).join("");
+}
+function buyResearch(i){
+ const r=research[i];if(s.crystals<r.cost||s.research.includes(i))return;
+ s.crystals-=r.cost;s.research.push(i);say("Recherche terminée : "+r.name);update();
+}
+function dayKey(){const d=new Date();return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();}
+function initMission(){
+ if(s.missionDay!==dayKey()){
+  s.missionDay=dayKey();s.missionProgress=0;s.missionClaimed=false;
+  const choices=[
+   {name:"Récolte quotidienne",desc:"Gagne 500 graviers.",target:500,reward:2},
+   {name:"Doigt agile",desc:"Effectue 40 clics.",target:40,reward:2},
+   {name:"Petit investisseur",desc:"Achète 3 améliorations.",target:3,reward:3},
+   {name:"Chasseur de pierres",desc:"Gagne 3 000 graviers.",target:3000,reward:4}
+  ];
+  mission=choices[new Date().getDate()%choices.length];
+ }else{
+  const choices=[
+   {name:"Récolte quotidienne",desc:"Gagne 500 graviers.",target:500,reward:2},
+   {name:"Doigt agile",desc:"Effectue 40 clics.",target:40,reward:2},
+   {name:"Petit investisseur",desc:"Achète 3 améliorations.",target:3,reward:3},
+   {name:"Chasseur de pierres",desc:"Gagne 3 000 graviers.",target:3000,reward:4}
+  ];
+  mission=choices[new Date().getDate()%choices.length];
+ }
+}
+function renderMissions(){
+ const progress=Math.min(mission.target,s.missionProgress);
+ $("missionItems").innerHTML=`
+ <div class="item"><div class="item-icon">📜</div><div class="item-info"><div class="item-name">${mission.name}</div><div class="item-desc">${mission.desc}</div><div class="mission-progress"><div class="bar"><div style="width:${progress/mission.target*100}%"></div></div></div><div class="item-count">${fmt(progress)} / ${fmt(mission.target)}</div></div>
+ <button class="action" onclick="claimMission()" ${s.missionClaimed||progress<mission.target?"disabled":""}>${s.missionClaimed?"RÉCLAMÉ":mission.reward+" 💠"}</button></div>
+ <div class="notice">Les missions changent chaque jour. Les cristaux gagnés servent aux recherches permanentes.</div>`;
+}
+function claimMission(){
+ if(s.missionClaimed||s.missionProgress<mission.target)return;
+ s.missionClaimed=true;s.crystals+=mission.reward;say("Mission accomplie ! +"+mission.reward+" cristaux.");update();
+}
+function renderAchievements(){
+ $("achievementItems").innerHTML=achievements.map((a,i)=>{
+  const done=a[3](s);
+  if(done&&!s.unlocked.includes(i)){s.unlocked.push(i);say("🏆 Succès débloqué : "+a[1]);}
+  return `<div class="badge-card ${done?"done":""}"><div class="big">${a[0]}</div><b>${a[1]} ${done?"✓":""}</b><small>${a[2]}</small></div>`;
+ }).join("");
+}
+function renderStats(){
+ const data=[
+ ["Niveau",s.level+"/"+stages.length],["Total gagné",fmt(s.totalEarned)],
+ ["Clics effectués",fmt(s.clicks)],["Améliorations achetées",s.purchases],
+ ["Météorites attrapées",s.meteors],["Gravier des météorites",fmt(s.meteorGravel)],
+ ["Prestiges",s.prestiges],["Bonus de prestige","+"+(s.prestiges*20)+"%"],
+ ["Multiplicateur total","x"+mult().toFixed(2)],["Recherches actives",s.research.length]
+ ];
+ $("statistics").innerHTML=data.map(x=>`<div class="stat-box"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("");
+ const can=s.level>=stages.length;
+ const reward=Math.floor(5+s.prestiges*2+s.level/3);
+ $("prestigeInfo").textContent=can?"Prêt à renaître : tu gagneras "+reward+" cristaux.":"Niveau "+stages.length+" requis. Niveau actuel : "+s.level+"/"+stages.length+".";
+ $("prestigeButton").disabled=!can;
+}
+function renderStone(){
+ const stage=stages[s.level-1];
+ document.documentElement.style.setProperty("--stone1",stage.c1);
+ document.documentElement.style.setProperty("--stone2",stage.c2);
+ document.documentElement.style.setProperty("--glow",stage.glow);
+ $("stoneWrap").classList.toggle("rare",s.level>=3);
+ $("stoneName").textContent=stage.name;
+ $("stoneRank").textContent=stage.rank;
+ $("levelMessage").textContent=stage.msg;
+ const from=s.level===stages.length?0:s.xp;
+ const need=s.level===stages.length?1:levelNeed(s.level);
+ const progress=s.level===stages.length?100:Math.min(100,from/need*100);
+ $("xpBar").style.width=progress+"%";
+ $("xpText").textContent=s.level===stages.length?"MAXIMUM ATTEINT":fmt(from)+" / "+fmt(need);
+ $("levelPill").textContent="NIVEAU "+s.level+" / "+stages.length;
+ const gemCount=Math.min(8,Math.floor(s.level/4));
+ $("extraGems").innerHTML=Array.from({length:gemCount},(_,i)=>{
+  const x=70+(i%4)*32,y=119+Math.floor(i/4)*25;
+  return `<path d="M${x} ${y-8} l7 10 -7 12 -7 -12Z" fill="${stage.glow}" stroke="#fff" stroke-opacity=".5"/>`;
+ }).join("");
+}
+function render(){
+ $("gravel").textContent=fmt(s.gravel);
+ $("power").textContent=fmt(power());
+ $("rate").textContent=fmt(rate());
+ $("crystals").textContent=fmt(s.crystals);
+ renderStone();renderShop();renderResearch();renderMissions();renderAchievements();renderStats();
+}
+function updateLevel(){let l=1;while(l<stages.length&&s.xp>=levelNeed(l))l++;if(l>s.level){s.level=l;say("✨ ÉVOLUTION : NIVEAU "+l+" — "+stages[l-1].name);}else s.level=l;}
+function update(){updateLevel();render();save();}
+
+function prestige(){
+ if(s.level<stages.length)return;
+ const reward=Math.floor(5+s.prestiges*2+s.level/3);
+ if(!confirm("Renaître ? Tu vas perdre ton gravier, tes niveaux et tes améliorations. Tes recherches et tes cristaux sont conservés. Tu gagneras "+reward+" cristaux."))return;
+ s.crystals+=reward;s.prestiges++;
+ s.gravel=0;s.xp=0;s.level=1;s.owned=Array(shop.length).fill(0);
+ s.purchases=0;s.missionProgress=0;
+ say("♾️ Renaissance accomplie ! Bonus permanent augmenté.");
+ update();
+}
+
+function spawnMeteor(){
+ if($("meteor").classList.contains("show"))return;
+ $("meteor").classList.add("show");
+ setTimeout(()=>$("meteor").classList.remove("show"),9000);
+}
+$("meteor").addEventListener("click",()=>{
+ if(!$("meteor").classList.contains("show"))return;
+ const reward=Math.max(100,rate()*30+power()*20+100);
+ s.gravel+=reward;s.totalEarned+=reward;s.xp+=reward;
+ s.crystals+=1;s.meteors++;s.meteorGravel+=reward;
+ $("meteor").classList.remove("show");
+ say("☄️ Météorite récupérée ! +"+fmt(reward)+" graviers et +1 cristal.");
+ update();
+});
+
+document.querySelectorAll(".tab").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");$(btn.dataset.tab).classList.add("active");
+ });
+});
+
+function resetGame(){
+ if(!confirm("Effacer définitivement toute ta progression, y compris tes prestiges et recherches ?"))return;
+ localStorage.removeItem("rockProtocolV2");s=fresh();initMission();update();say("Nouvelle vie. Nouveau caillou.");
+}
+
+load();initMission();render();
+setInterval(()=>{
+ const gain=rate();
+ if(gain>0){
+  s.gravel+=gain;s.totalEarned+=gain;s.xp+=gain;
+  if(mission.name.includes("Récolte")||mission.name.includes("Chasseur"))s.missionProgress+=gain;
+  update();
+ }
+},1000);
+setInterval(()=>{if(Math.random()<.35)spawnMeteor()},18000);
+setInterval(save,5000);
+</script>
+</body>
+</html>
